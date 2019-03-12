@@ -1,0 +1,64 @@
+@extends('layouts/master')
+
+@section('title', 'Inicio')
+
+@section('content')
+
+    <div class="col-12 px-0 mb-4">
+        <form action={{ route('producto.filtrar')}} method="get">
+            <div class="row">
+                <div class="col-md-7">
+                    <input type="text" class="form-control" placeholder="Buscar producto" name="producto" id="producto">    
+                </div>
+                <div class="col-md-3">
+                    <select name="selectCategoria" id="selectCategorias" class="form-control">
+                        <option value="0">Todas las categorias</option>
+                        @foreach ($categorias as $categoria)
+                            <option value={{$categoria->id}}>{{ $categoria->nombre}}</option>
+                        @endforeach
+                        
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary btn-block" type="submit">Filtrar</button>
+                </div>
+            </div>
+            {{ csrf_field() }}
+        </form>
+    </div>
+
+    @if (Session::has('status'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>{!! Session::get('status') !!}</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    <div class="row">
+            @foreach ($productos as $producto)
+                <div class="col-sm-6 col-md-4 producto mt-4">
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top"   src={{ $producto->image_url }} alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $producto->nombre }}</h5>
+                            @if ($producto->descuento > 0)
+                                <del class="card-text my-0">${{ $producto->precio }}</del>
+                                <p class="my-0">Precio con descuento: ${{ round(intval($producto->precio) * ((100 - intval($producto->descuento)))/100) }}</p>
+                                    <small class="d-block mb-2 text-success">Descuento: - %{{ $producto->descuento }}</small>
+                            @else
+                                <p class="card-text my-1">Precio ${{ $producto->precio }}</p>
+                            @endif
+    
+                            @if ($producto->stock > 0)
+                                <a href={{ route('producto.addToCart', ['id' => $producto->id])}} class="btn btn-primary btn-block">Añadir al carrito <i class="fas fa-shopping-cart"></i></a>
+                            @else
+                                <a href="#" class="btn btn-danger disabled btn-block">Producto sin stock</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>   
+            @endforeach
+        </div>
+@endsection
